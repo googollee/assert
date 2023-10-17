@@ -23,7 +23,7 @@ func TestMapRangeKeys(t *testing.T) {
 				"a": "1",
 				"b": "2",
 			},
-			wantKey: assert.All(assert.Len[string](2), assert.Contain("a", "b")),
+			wantKey: assert.All(assert.Len[string](2), assert.Contain("a"), assert.Contain("b")),
 		},
 	}
 
