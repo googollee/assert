@@ -47,16 +47,30 @@ func All[T any](conds ...Assert[T]) Assert[T] {
 	}
 }
 
-func Contain[T comparable](want T) Assert[[]T] {
+func Contain[T comparable](wants ...T) Assert[[]T] {
 	return Assert[[]T]{
 		check: func(got []T) string {
-			for _, t := range got {
-				if t == want {
-					return ""
+			for _, g := range got {
+				for _, w := range wants {
+					if g == w {
+						return ""
+					}
 				}
 			}
 
-			return fmt.Sprintf("%+v doesn't contain %+v", got, want)
+			return fmt.Sprintf("%+v doesn't contain any in %+v", got, wants)
+		},
+	}
+}
+
+func Len[T any](want int) Assert[[]T] {
+	return Assert[[]T]{
+		check: func(got []T) string {
+			if len(got) == want {
+				return ""
+			}
+
+			return fmt.Sprintf("len(%+v) = %d, want: %d", got, len(got), want)
 		},
 	}
 }
