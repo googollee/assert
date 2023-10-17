@@ -10,7 +10,7 @@ func TestMapRangeKeys(t *testing.T) {
 	tests := []struct {
 		name    string
 		m       map[string]string
-		wantKey assert.Asserter
+		wantKey assert.Assert[[]string]
 	}{
 		{
 			name:    "empty",
@@ -23,7 +23,7 @@ func TestMapRangeKeys(t *testing.T) {
 				"a": "1",
 				"b": "2",
 			},
-			wantKey: assert.Any(assert.Contain("a"), assert.Contain("b")),
+			wantKey: assert.All(assert.Contain("a"), assert.Contain("b")),
 		},
 	}
 
@@ -34,7 +34,7 @@ func TestMapRangeKeys(t *testing.T) {
 				keys = append(keys, key)
 			}
 
-			tc.wantKey.Check(keys)
+			tc.wantKey.Check(t, keys)
 		})
 	}
 }

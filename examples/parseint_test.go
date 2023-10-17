@@ -10,13 +10,13 @@ import (
 func TestParseInt(t *testing.T) {
 	tests := []struct {
 		input   string
-		want    assert.Asserter
-		wantErr assert.Asserter
+		want    assert.Assert[int64]
+		wantErr assert.Assert[error]
 	}{
 		{
 			input:   "",
-			want:    assert.Any(),
-			wantErr: assert.ErrorContains("invalid syntax"),
+			want:    assert.Any[int64](),
+			wantErr: assert.IsError(strconv.ErrSyntax),
 		},
 		{
 			input:   "1",
@@ -30,12 +30,12 @@ func TestParseInt(t *testing.T) {
 		},
 		{
 			input:   "9223372036854775808",
-			want:    assert.Any(),
-			wantErr: assert.ErrorContains("out of range"),
+			want:    assert.Any[int64](),
+			wantErr: assert.IsError(strconv.ErrRange),
 		},
 		{
 			input:   "-9223372036854775808",
-			want:    assert.Equal(-1 << 63),
+			want:    assert.Equal[int64](-1 << 63),
 			wantErr: assert.IsNil[error](),
 		},
 	}
@@ -43,8 +43,8 @@ func TestParseInt(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.input, func(t *testing.T) {
 			got, err := strconv.ParseInt(tc.input, 10, 64)
-			tc.wantErr.FailNow(err, "ParseInt(%d, 10, 64) error", tc.input)
-			tc.want.Check(got, "ParseInt(%d, 10, 64)", tc.input)
+			tc.wantErr.Ensuref(t, err, "ParseInt(%d, 10, 64) error", tc.input)
+			tc.want.Checkf(t, got, "ParseInt(%d, 10, 64)", tc.input)
 		})
 	}
 }
