@@ -13,9 +13,15 @@ func TestMapRangeKeys(t *testing.T) {
 		wantKey assert.Assert[[]string]
 	}{
 		{
-			name:    "empty",
-			m:       map[string]string{},
-			wantKey: assert.Func(func(v []string) bool { return len(v) == 0 }),
+			name: "empty",
+			m:    map[string]string{},
+			wantKey: assert.Func(func(v []string) bool {
+				if l := len(v); l != 0 {
+					t.Logf("len(keys) = %d, want: 0", l)
+					return false
+				}
+				return true
+			}),
 		},
 		{
 			name: "2Items",
