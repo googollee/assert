@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 var panicFailed = errors.New("failed")
@@ -47,57 +49,61 @@ func uniqueSpace(str string) string {
 func TestEqual(t *testing.T) {
 	a := Equal[int](10)
 
-	{
-		var ft fakeTesting
-		a.Check(&ft, 10, "should not be logged")
-		if ft.failed {
-			t.Fatal("a.Check(10) should not fail")
-		}
-		if ft.output.Len() != 0 {
-			t.Fatal("a.Check(10) should not fail")
-		}
-	}
+	tests := []struct {
+		name        string
+		checking    func(t T)
+		wantFailed  bool
+		wantPaniced bool
+		wantOutput  string
+	}{
+		{
+			name:        "CheckOK",
+			checking:    func(t T) { a.Check(t, 10, "should not be logged") },
+			wantFailed:  false,
+			wantPaniced: false,
+			wantOutput:  "",
+		},
+		{
+			name:        "CheckFail",
+			checking:    func(t T) { a.Check(t, 1, "should be logged") },
+			wantFailed:  true,
+			wantPaniced: false,
+			wantOutput:  "should be logged\nat asserter_test.go:50: diff (-got, +want):\n  int(\n- \t1,\n+ \t10,\n  )\n\n",
+		},
+		{
+			name:        "EnsureOK",
+			checking:    func(t T) { a.Ensure(t, 10, "should not be logged") },
+			wantFailed:  false,
+			wantPaniced: false,
+			wantOutput:  "",
+		},
+		{
+			name:        "EnsureFail",
+			checking:    func(t T) { a.Ensure(t, 1, "should be logged") },
+			wantFailed:  true,
+			wantPaniced: true,
+			wantOutput:  "should be logged\nat asserter_test.go:50: diff (-got, +want):\n  int(\n- \t1,\n+ \t10,\n  )\n\n",
+		}}
 
-	{
-		var ft fakeTesting
-		a.Check(&ft, 1, "should be logged")
-		if !ft.failed {
-			t.Fatal("a.Check(1) should fail")
-		}
-		if got, want := uniqueSpace(ft.output.String()), "should be logged\nat asserter_test.go:48: diff (-got, +want):\n  int(\n- \t1,\n+ \t10,\n  )\n\n"; got != want {
-			t.Fatalf("a.Check(1) output: %q, want: %q", got, want)
-		}
-	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var ft fakeTesting
+			defer func() {
+				v := recover()
+				if got, want := v != nil, tc.wantPaniced; got != want {
+					t.Fatalf("recover() = %v, want panic: %v", v, tc.wantPaniced)
+				}
 
-	{
-		var ft fakeTesting
-		defer func() {
-			if v := recover(); v != nil {
-				t.Fatal("a.Ensure(10) should not panic")
-			}
-			if ft.failed {
-				t.Fatal("a.Check(10) should not fail")
-			}
-			if ft.output.Len() != 0 {
-				t.Fatal("a.Check(10) should not fail")
-			}
-		}()
-		a.Ensure(&ft, 10, "should not be logged")
-	}
+				if got, want := ft.failed, tc.wantFailed; got != want {
+					t.Fatalf("ft.failed = %v, want: %v", got, want)
+				}
+				output := uniqueSpace(ft.output.String())
+				if diff := cmp.Diff(output, tc.wantOutput); diff != "" {
+					t.Fatalf("output diff (-got, +want):\n%s", diff)
+				}
+			}()
 
-	{
-		var ft fakeTesting
-		defer func() {
-			if v := recover(); v != panicFailed {
-				t.Fatal("a.Ensure(1) should panic, got:", v)
-			}
-			if !ft.failed {
-				t.Fatal("a.Check(1) should fail")
-			}
-			if got, want := uniqueSpace(ft.output.String()), "should be logged\nat asserter_test.go:48: diff (-got, +want):\n  int(\n- \t1,\n+ \t10,\n  )\n\n"; got != want {
-				t.Fatalf("a.Check(1) output: %q, want: %q", got, want)
-			}
-		}()
-		a.Ensure(&ft, 1, "should be logged")
+			tc.checking(&ft)
+		})
 	}
 }
