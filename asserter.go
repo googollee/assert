@@ -91,7 +91,7 @@ func Equal[T comparable](want T) Assert[T] {
 		})
 }
 
-func IsNil[T comparable]() Assert[T] {
+func IsNil[T any]() Assert[T] {
 	return newAssert[T](1,
 		func(got T) string {
 			if any(got) == nil {
