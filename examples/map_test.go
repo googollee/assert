@@ -41,7 +41,7 @@ func TestMapRangeKeys(t *testing.T) {
 			}
 
 			if !tc.wantKey.Constrain(keys) {
-				t.Errorf("%v.Apply(%v) fails.", tc.wantKey, keys)
+				t.Errorf("%v fails with %v", tc.wantKey, keys)
 			}
 		})
 	}

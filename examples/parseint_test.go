@@ -44,10 +44,10 @@ func TestParseInt(t *testing.T) {
 		t.Run(tc.input, func(t *testing.T) {
 			got, err := strconv.ParseInt(tc.input, 10, 64)
 			if !tc.wantErr.Constrain(err) {
-				t.Fatalf("%v.Apply(%v) fails", tc.wantErr, err)
+				t.Fatalf("%v fails with %v", tc.wantErr, err)
 			}
 			if !tc.want.Constrain(got) {
-				t.Errorf("%v.Apply(%v) fails", tc.want, tc.input)
+				t.Errorf("%v fails with %v", tc.want, got)
 			}
 		})
 	}
