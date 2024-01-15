@@ -10,8 +10,8 @@ import (
 func TestParseInt(t *testing.T) {
 	tests := []struct {
 		input   string
-		want    assert.Condition[int64]
-		wantErr assert.Condition[error]
+		want    assert.Assert[int64]
+		wantErr assert.Assert[error]
 	}{
 		{
 			input:   "",
@@ -43,11 +43,11 @@ func TestParseInt(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.input, func(t *testing.T) {
 			got, err := strconv.ParseInt(tc.input, 10, 64)
-			if !tc.wantErr.Constrain(err) {
-				t.Fatalf("strconv.ParseInt(%q, 10, 64) returns error %v, but should be %v", tc.input, err, tc.wantErr)
+			if should := tc.wantErr(err); should != "" {
+				t.Fatalf("strconv.ParseInt(%q, 10, 64) returns error %v, but should be %v", tc.input, err, should)
 			}
-			if !tc.want.Constrain(got) {
-				t.Fatalf("strconv.ParseInt(%q, 10, 64) = %d, but should be %v", tc.input, got, tc.want)
+			if should := tc.want(got); should != "" {
+				t.Fatalf("strconv.ParseInt(%q, 10, 64) = %d, but should be %v", tc.input, got, should)
 			}
 		})
 	}

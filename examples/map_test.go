@@ -10,18 +10,18 @@ func TestMapRangeKeys(t *testing.T) {
 	tests := []struct {
 		name    string
 		m       map[string]string
-		wantKey assert.Condition[[]string]
+		wantKey assert.Assert[[]string]
 	}{
 		{
 			name: "empty",
 			m:    map[string]string{},
-			wantKey: assert.Func("want empty", func(v []string) bool {
+			wantKey: assert.Func(func(v []string) bool {
 				if l := len(v); l != 0 {
 					t.Logf("len(keys) = %d, want: 0", l)
 					return false
 				}
 				return true
-			}),
+			}, "empty"),
 		},
 		{
 			name: "2Items",
@@ -40,8 +40,8 @@ func TestMapRangeKeys(t *testing.T) {
 				keys = append(keys, key)
 			}
 
-			if !tc.wantKey.Constrain(keys) {
-				t.Errorf("keys = %v, but should be %v", keys, tc.wantKey)
+			if should := tc.wantKey(keys); should != "" {
+				t.Errorf("keys = %v, but should be %v", keys, should)
 			}
 		})
 	}
