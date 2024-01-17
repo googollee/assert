@@ -16,12 +16,12 @@ func TestMapRangeKeys(t *testing.T) {
 			name: "empty",
 			m:    map[string]string{},
 			wantKey: assert.Func(func(v []string) bool {
-				if l := len(v); l != 0 {
-					t.Logf("len(keys) = %d, want: 0", l)
+				if l := len(v); l != 1 {
+					t.Logf("len(keys) = %d, want: 1", l)
 					return false
 				}
 				return true
-			}, "empty"),
+			}, "has 1 entry"),
 		},
 		{
 			name: "2Items",
@@ -29,7 +29,7 @@ func TestMapRangeKeys(t *testing.T) {
 				"a": "1",
 				"b": "2",
 			},
-			wantKey: assert.AllOf(assert.Len[string](2), assert.Contain("a"), assert.Contain("b")),
+			wantKey: assert.AllOf(assert.Len[string](3), assert.Contain("a"), assert.Contain("b"), assert.Contain("c")),
 		},
 	}
 
@@ -41,7 +41,7 @@ func TestMapRangeKeys(t *testing.T) {
 			}
 
 			if should := tc.wantKey(keys); should != "" {
-				t.Errorf("keys = %v, but should be %v", keys, should)
+				t.Errorf("keys = %v, want: %v", keys, should)
 			}
 		})
 	}

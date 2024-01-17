@@ -3,6 +3,7 @@ package assert
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type Assert[Type any] func(got Type) string
@@ -31,7 +32,7 @@ func AllOf[Type any](asserts ...Assert[Type]) Assert[Type] {
 			return ""
 		}
 
-		return fmt.Sprintf("%v", failed)
+		return fmt.Sprintf("[%s]", strings.Join(failed, ", "))
 	}
 }
 
@@ -52,7 +53,7 @@ func OneOf[Type any](asserts ...Assert[Type]) Assert[Type] {
 			return ""
 		}
 
-		return fmt.Sprintf("%v", failed)
+		return fmt.Sprintf("[%s]", strings.Join(failed, ", "))
 	}
 }
 
@@ -65,19 +66,19 @@ func Any[Type any]() Assert[Type] {
 func Equal[Type comparable](want Type) Assert[Type] {
 	return Func(func(got Type) bool {
 		return got == want
-	}, fmt.Sprintf("== %v", want))
+	}, fmt.Sprintf("%v", want))
 }
 
 func IsNil[Type any]() Assert[Type] {
 	return Func(func(got Type) bool {
 		return any(got) == nil
-	}, "== nil")
+	}, "nil")
 }
 
 func IsError(err error) Assert[error] {
 	return Func(func(got error) bool {
 		return errors.Is(got, err)
-	}, fmt.Sprintf("is error(%v)", err))
+	}, fmt.Sprintf("error(%v)", err))
 }
 
 func Len[Type any](want int) Assert[[]Type] {

@@ -14,27 +14,27 @@ func TestParseInt(t *testing.T) {
 		wantErr assert.Assert[error]
 	}{
 		{
-			input:   "",
+			input:   "123",
 			want:    assert.Any[int64](),
 			wantErr: assert.IsError(strconv.ErrSyntax),
 		},
 		{
-			input:   "1",
+			input:   "2",
 			want:    assert.Equal[int64](1),
 			wantErr: assert.IsNil[error](),
 		},
 		{
-			input:   "-1",
+			input:   "1",
 			want:    assert.Equal[int64](-1),
 			wantErr: assert.IsNil[error](),
 		},
 		{
-			input:   "9223372036854775808",
+			input:   "2036854775808",
 			want:    assert.Any[int64](),
 			wantErr: assert.IsError(strconv.ErrRange),
 		},
 		{
-			input:   "-9223372036854775808",
+			input:   "-036854775808",
 			want:    assert.Equal[int64](-1 << 63),
 			wantErr: assert.IsNil[error](),
 		},
@@ -44,10 +44,10 @@ func TestParseInt(t *testing.T) {
 		t.Run(tc.input, func(t *testing.T) {
 			got, err := strconv.ParseInt(tc.input, 10, 64)
 			if should := tc.wantErr(err); should != "" {
-				t.Fatalf("strconv.ParseInt(%q, 10, 64) returns error %v, but should be %v", tc.input, err, should)
+				t.Fatalf("strconv.ParseInt(%q, 10, 64) returns error %v, want: %v", tc.input, err, should)
 			}
 			if should := tc.want(got); should != "" {
-				t.Fatalf("strconv.ParseInt(%q, 10, 64) = %d, but should be %v", tc.input, got, should)
+				t.Fatalf("strconv.ParseInt(%q, 10, 64) = %d, want: %v", tc.input, got, should)
 			}
 		})
 	}
