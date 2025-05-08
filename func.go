@@ -1,6 +1,7 @@
 package cc
 
 import (
+	"errors"
 	"runtime"
 	"testing"
 
@@ -57,5 +58,40 @@ func Contain[Type comparable](want Type) Checker[[]Type] {
 		}
 
 		t.Checkf(file, line, "got %v, want contain %v", got, want)
+	}
+}
+
+func IsNil[Type any]() Checker[Type] {
+	_, file, line, _ := runtime.Caller(1)
+	return func(t checker, got Type) {
+		t.Helper()
+		var v any = got
+		if v == nil {
+			return
+		}
+		t.Checkf(file, line, "got: %v, want: nil", got)
+	}
+}
+
+func IsError(want error) Checker[error] {
+	_, file, line, _ := runtime.Caller(1)
+	return func(t checker, got error) {
+		t.Helper()
+		if errors.Is(got, want) {
+			return
+		}
+		t.Checkf(file, line, "got error: (%T)%v, want error: (%T)%v", got, got, want, want)
+	}
+}
+
+func AsError[Want error]() Checker[error] {
+	_, file, line, _ := runtime.Caller(1)
+	return func(t checker, got error) {
+		t.Helper()
+		var want Want
+		if errors.As(got, &want) {
+			return
+		}
+		t.Checkf(file, line, "got error: (%T)%v, want as error: %T", got, got, want)
 	}
 }
