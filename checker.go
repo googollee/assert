@@ -8,13 +8,13 @@ import (
 
 type Checker[Type any] func(t checker, got Type)
 
-func (c Checker[Type]) Want(t *testing.T, got Type) {
+func (c Checker[Type]) Want(t testing.TB, got Type) {
 	t.Helper()
 	wt := wantT{t}
 	c(wt, got)
 }
 
-func (c Checker[Type]) Ensure(t *testing.T, got Type) {
+func (c Checker[Type]) Ensure(t testing.TB, got Type) {
 	t.Helper()
 	et := ensureT{t}
 	c(et, got)
@@ -24,12 +24,10 @@ type checker interface {
 	testing.TB
 	Check(file string, line int, msg ...any)
 	Checkf(file string, line int, format string, v ...any)
-
-	testing() *testing.T
 }
 
 type wantT struct {
-	*testing.T
+	testing.TB
 }
 
 func (t wantT) Check(file string, line int, msg ...any) {
@@ -42,12 +40,8 @@ func (t wantT) Checkf(file string, line int, format string, v ...any) {
 	t.Errorf(definedInfo(file, line)+format, v...)
 }
 
-func (t wantT) testing() *testing.T {
-	return t.T
-}
-
 type ensureT struct {
-	*testing.T
+	testing.TB
 }
 
 func (t ensureT) Check(file string, line int, msg ...any) {
@@ -58,10 +52,6 @@ func (t ensureT) Check(file string, line int, msg ...any) {
 func (t ensureT) Checkf(file string, line int, format string, v ...any) {
 	t.Helper()
 	t.Fatalf(definedInfo(file, line)+format, v...)
-}
-
-func (t ensureT) testing() *testing.T {
-	return t.T
 }
 
 func definedInfo(file string, line int) string {

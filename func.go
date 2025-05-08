@@ -3,12 +3,14 @@ package cc
 import (
 	"runtime"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
-func Func[Type any](passing func(t *testing.T, got Type)) Checker[Type] {
+func Func[Type any](passing func(t testing.TB, got Type)) Checker[Type] {
 	return func(t checker, got Type) {
 		t.Helper()
-		passing(t.testing(), got)
+		passing(t, got)
 	}
 }
 
@@ -18,6 +20,19 @@ func AllOf[Type any](asserts ...Checker[Type]) Checker[Type] {
 		for _, assert := range asserts {
 			assert(t, got)
 		}
+	}
+}
+
+func Equal[Type any](want Type) Checker[Type] {
+	_, file, line, _ := runtime.Caller(1)
+	return func(t checker, got Type) {
+		t.Helper()
+		diff := cmp.Diff(got, want)
+		if diff == "" {
+			return
+		}
+
+		t.Checkf(file, line, "diff (-got, +want):\n%s", cmp.Diff(got, want))
 	}
 }
 
