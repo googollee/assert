@@ -1,23 +1,23 @@
-package assert
+package examples
 
 import (
 	"maps"
 	"slices"
 	"testing"
 
-	"github.com/googollee/assert"
+	"github.com/googollee/cc"
 )
 
 func TestMapRangeKeys(t *testing.T) {
 	tests := []struct {
 		name        string
 		m           map[string]string
-		keyCheckers assert.Assert[[]string]
+		keyCheckers cc.Checker[[]string]
 	}{
 		{
 			name: "empty",
 			m:    map[string]string{},
-			keyCheckers: assert.Func(func(t assert.T, v []string) {
+			keyCheckers: cc.Func(func(t *testing.T, v []string) {
 				if l := len(v); l != 1 {
 					t.Errorf("got len(keys) = %d, want: 1", l)
 				}
@@ -29,7 +29,7 @@ func TestMapRangeKeys(t *testing.T) {
 				"a": "1",
 				"b": "2",
 			},
-			keyCheckers: assert.AllOf(assert.Len[string](3), assert.Contain("a"), assert.Contain("b"), assert.Contain("c")),
+			keyCheckers: cc.AllOf(cc.Len[string](3), cc.Contain("a"), cc.Contain("b"), cc.Contain("c")),
 		},
 	}
 

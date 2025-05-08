@@ -1,4 +1,4 @@
-module github.com/googollee/assert
+module github.com/googollee/cc
 
 go 1.20
 
