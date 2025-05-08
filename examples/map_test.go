@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/googollee/cc"
+	"github.com/googollee/go-cc"
 )
 
 func TestMapRangeKeys(t *testing.T) {

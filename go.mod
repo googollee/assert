@@ -1,4 +1,4 @@
-module github.com/googollee/cc
+module github.com/googollee/go-cc
 
 go 1.20
 
