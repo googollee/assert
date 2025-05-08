@@ -1,6 +1,9 @@
 package assert
 
-import "testing"
+import (
+	"runtime"
+	"testing"
+)
 
 type Assert[Type any] func(t T, got Type)
 
@@ -33,15 +36,17 @@ func AllOf[Type any](asserts ...Assert[Type]) Assert[Type] {
 }
 
 func Len[Type any](want int) Assert[[]Type] {
+	_, file, line, _ := runtime.Caller(1)
 	return Func(func(t T, got []Type) {
 		t.Helper()
 		if len(got) != want {
-			t.Checkf("got len(%v)=%d, want: %d", got, len(got), want)
+			t.Checkf(file, line, "got len(%v)=%d, want: %d", got, len(got), want)
 		}
 	})
 }
 
 func Contain[Type comparable](want Type) Assert[[]Type] {
+	_, file, line, _ := runtime.Caller(1)
 	return Func(func(t T, got []Type) {
 		t.Helper()
 		for _, v := range got {
@@ -50,6 +55,6 @@ func Contain[Type comparable](want Type) Assert[[]Type] {
 			}
 		}
 
-		t.Checkf("got %v, want contain %v", got, want)
+		t.Checkf(file, line, "got %v, want contain %v", got, want)
 	})
 }
